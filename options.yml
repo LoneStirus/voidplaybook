@@ -1,0 +1,140 @@
+---
+#
+#
+#
+
+- name: "Fase 1 - Particionamento"
+  hosts: localhost
+  connection: local
+  # -> Aqui teria "become": como na live USB já estariamos como root, não usamos.
+
+  # Aqui estão todas as variáveis de instalação, editar antes de prosseguir!
+  vars:
+    disk: /dev/nvme0n1
+    repo: "https://repo-fastly.voidlinux.org/current"
+    arch: x86_64
+    m_pkgs: ""
+    e_pkgs: "linux linux-headers opendoas nano btrfs-progs"
+  #eol
+
+  tasks:
+    # Seção 3, particionamento
+    - name: "[3] Criar tabela GPT e as partições (ESP + Linux VSP)"
+      command: >
+        sgdisk
+        -n 1:0:+1G -t 1:ef00
+        -n 2:0:0   -t 2:8300
+        {{ disk }}
+      args:
+        creates: "{{ disk }}p1"
+      #eol
+    #eol
+    - name: "[3.1] Backup da tabela de partição"
+      command: "sgdisk --backup=/root/gpt-backup-{{ disk | basename }}.bin {{ disk }}"
+      args:
+        creates: "/root/gpt-backup-{{ disk | basename }}.bin"
+      #eol
+    #eol
+    # Seção 4, formatação
+    - name: "[4] Formatar ESP em FAT32"
+      community.general.filesystems:
+        fstype: vfat
+        dev: "{{ disk }}p1"
+        opts: "-F 32 -n ESP"
+      #eol
+    #eol
+    - name: "[4.1] Formatar VSP em BTRFS"
+      community.general.filesystems:
+        fstype: btrfs
+        dev: "{{ disk }}p2"
+        opts: "-L VSP"
+        force: true
+      #eol
+    #eol
+    # Seção 5, subvolumes e montagem
+    - name: "[5] Criar subvolumes @, @home e @var_log"
+      community.general.btrfs_subvolume:
+        name: "/{{ item }}"
+        filesystems_device: "{{ disk }}p2"
+        automount: true
+      loop: ["@", "@home", "@var_log"]
+    #eol
+    - name: "[5.1] Montar subvolume @ em /mnt"
+      ansible.posix.mount:
+        path: /mnt
+        src: "{{ disk }}p2"
+        fstype: btrfs
+        opts: "subvol=@,noatime,compress=zstd:1,autodefrag"
+        state: ephemeral
+      #eol
+    #eol
+    - name: "[5.2] Criar pastas de destino dos demais pontos de montagem"
+      file:
+        path: "/mnt/{{ item }}"
+        state: directory
+      loop: ["home", "var/log", "boot/efi"]
+    #eol
+    - name: "[5.3] Montar subvolume @home"
+      ansible.posix.mount:
+        path: /mnt/home
+        src: "{{ disk }}p2"
+        fstype: btrfs
+        opts: "subvol=@home,noatime,compress=zstd:1,autodefrag"
+        state: ephemeral
+      #eol
+    #eol
+    - name: "[5.4] Montar subvolume @var_log"
+      ansible.posix.mount:
+        path: /mnt/var/log
+        src: "{{ disk }}p2"
+        fstype: btrfs
+        opts: "subvol=@var_log,relatime,compress=zstd:1,autodefrag"
+        state: ephemeral
+      #eol
+    #eol
+    - name: "[5.5] Montar ESP em /mnt/boot/efi"
+      ansible.posix.mount:
+        path: /mnt/boot/efi
+        src: "{{ disk }}p1"
+        fstype: vfat
+        state: ephemeral
+      #eol
+    #eol
+    # Seção 6, BOOTSTRAP do sistema
+    - name: "[6] Criar diretório de chaves xbps no novo sistema"
+      file:
+        path: /mnt/var/db/xbps/keys
+        state: directory
+      #eol
+    #eol
+    - name: "[6.1] Copiar chaves de assinatura para o novo sistema"
+      copy:
+        src: /var/db/xbps/keys/
+        dest: /mnt/var/db/xbps/keys/
+        remote_src: true
+      #eol
+    #eol
+    - name: "[6.2] Bootstrap do sistema base (meta-pacote base-essential)"
+      command: >
+        xbps-install -S -r /mnt -R "{{ repo }}"
+        {{ m_pkgs }} -R ./repo base-essential
+      environment:
+        XBPS_ARCH: "{{ arch }}"
+      args:
+        creates: /mnt/etc/rc.conf
+      #eol
+    #eol
+    # Seção 7, FSTAB
+    - name: "[7] Gerar conteúdo do fstab com xgenfstab"
+      command: "xgenfstab -U /mnt"
+      register: fstab_gerado
+      changed_when: true
+    #eol
+    - name: "[7] Gravar /mnt/etc/fstab"
+      copy:
+        content: "{{ fstab_generated.stdout }}\n"
+        dest: /mnt/etc/fstab
+      #eol
+    #eol
+  #eol
+#eol
