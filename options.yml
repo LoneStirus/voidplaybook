@@ -71,7 +71,7 @@
   # Tarefas a serem executadas:
   tasks:
     # Seção 3, particionamento
-    - name: "[3] Criar tabela GPT e partições (ESP + Linux VSP)"
+    - name: "3] Criar tabela GPT e partições (ESP + Linux VSP)"
       command: >
         sgdisk
         -n 1:0:+1G -t 1:ef00
@@ -81,21 +81,27 @@
         creates: "{{ disk }}p1"
       #eol
     #eol
-    - name: "[3.1] Backup da tabela de partição"
+    - name: "3.1] Backup da tabela de partição"
       command: "sgdisk --backup=/root/gpt-backup-{{ disk | basename }}.bin {{ disk }}"
       args:
         creates: "/root/gpt-backup-{{ disk | basename }}.bin"
       #eol
     #eol
     # Seção 4, formatação
-    - name: "[4] Formatar ESP em FAT32"
+    - name: "4] Formatar ESP em FAT32"
       community.general.filesystem:
         fstype: vfat
         dev: "{{ disk }}p1"
         opts: "-F 32 -n ESP"
       #eol
     #eol
-    - name: "[4.1] Formatar VSP em BTRFS"
+    - name: "4.1] Garantir que a partição '/mnt' está desmontada antes de prosseguir"
+      ansible.posix.mount:
+        path: /mnt
+        state: unmounted
+      #eol
+    #eol
+    - name: "4.2] Formatar VSP em BTRFS"
       community.general.filesystem:
         fstype: btrfs
         dev: "{{ disk }}p2"
@@ -104,14 +110,14 @@
       #eol
     #eol
     # Seção 5, subvolumes e montagem
-    - name: "[5] Criar subvolumes BTRFS @, @home e @var_log"
+    - name: "5] Criar subvolumes BTRFS @, @home e @var_log"
       community.general.btrfs_subvolume:
         name: "/{{ item }}"
         filesystem_device: "{{ disk }}p2"
         automount: true
       loop: ["@", "@home", "@var_log"]
     #eol
-    - name: "[5.1] Montar subvolume @ em /mnt"
+    - name: "5.1] Montar subvolume @ em /mnt"
       ansible.posix.mount:
         path: /mnt
         src: "{{ disk }}p2"
@@ -120,13 +126,13 @@
         state: ephemeral
       #eol
     #eol
-    - name: "[5.2] Criar pastas de destino dos demais pontos de montagem"
+    - name: "5.2] Criar pastas de destino dos demais pontos de montagem"
       file:
         path: "/mnt/{{ item }}"
         state: directory
       loop: ["home", "var/log", "boot/efi"]
     #eol
-    - name: "[5.3] Montar subvolume @home"
+    - name: "5.3] Montar subvolume @home"
       ansible.posix.mount:
         path: /mnt/home
         src: "{{ disk }}p2"
@@ -135,7 +141,7 @@
         state: ephemeral
       #eol
     #eol
-    - name: "[5.4] Montar subvolume @var_log"
+    - name: "5.4] Montar subvolume @var_log"
       ansible.posix.mount:
         path: /mnt/var/log
         src: "{{ disk }}p2"
@@ -144,7 +150,7 @@
         state: ephemeral
       #eol
     #eol
-    - name: "[5.5] Montar ESP em /mnt/boot/efi"
+    - name: "5.5] Montar ESP em /mnt/boot/efi"
       ansible.posix.mount:
         path: /mnt/boot/efi
         src: "{{ disk }}p1"
@@ -153,20 +159,20 @@
       #eol
     #eol
     # Seção 6, BOOTSTRAP do sistema
-    - name: "[6] Criar diretório de chaves xbps no novo sistema"
+    - name: "6] Criar diretório de chaves xbps no novo sistema"
       file:
         path: /mnt/var/db/xbps/keys
         state: directory
       #eol
     #eol
-    - name: "[6.1] Copiar chaves de assinatura para o novo sistema"
+    - name: "6.1] Copiar chaves de assinatura para o novo sistema"
       copy:
         src: /var/db/xbps/keys/
         dest: /mnt/var/db/xbps/keys/
         remote_src: true
       #eol
     #eol
-    - name: "[6.2] Bootstrap do sistema base (meta-pacote 'base-essential')"
+    - name: "6.2] Bootstrap do sistema base (meta-pacote 'base-essential')"
       command: >
         xbps-install -S -r /mnt -R "{{ repo }}"
         {{ m_pkgs }} -R ./repo base-essential
@@ -177,12 +183,12 @@
       #eol
     #eol
     # Seção 7, FSTAB
-    - name: "[7] Gerar conteúdo do fstab com xgenfstab"
+    - name: "7] Gerar conteúdo do fstab com xgenfstab"
       command: "xgenfstab -U /mnt"
       register: fstab_generated
       changed_when: true
     #eol
-    - name: "[7.1] Gravar /mnt/etc/fstab"
+    - name: "7.1] Gravar /mnt/etc/fstab"
       copy:
         content: "{{ fstab_generated.stdout }}\n"
         dest: /mnt/etc/fstab
