@@ -96,10 +96,11 @@
       #eol
     #eol
     - name: "4.1] Garantir que a partição '/mnt' está desmontada antes de prosseguir"
-      ansible.posix.mount:
-        path: /mnt
-        state: unmounted
-        force: true
+      ansible.builtin.shell:
+        if mountpoint -q /mnt; then
+          umount -R /mnt
+        fi
+      changed_when: false
       #eol
     #eol
     - name: "4.2] Formatar VSP em BTRFS"
