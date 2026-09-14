@@ -4,7 +4,7 @@
 # "gptfdisk", "nano" e "base-essential" (deve-se criar o meta-pacote antes).
 # O script também deve ser rodado com os privilégios elevados.
 
-- name: "Fase 1 - Preparando o terreno para instalação..."
+- name: "Fase 2 - Preparando o terreno para instalação..."
   hosts: localhost
   connection: local
   # -> Aqui teria "become": como na live USB já estariamos como root, não usamos.
@@ -14,45 +14,6 @@
     disk: /dev/nvme0n1
     repo: "https://repo-fastly.voidlinux.org/current"
     arch: x86_64
-    m_pkgs:
-      # Utilitários e estruturas de baixo nível + espinha dorsal
-      - "base-files>=0.77"
-      - "removed-packages>=0"
-      - "pam-base"
-      - "dash>=0"
-      - "bash>=0"
-      - "xbps>=0"
-      - "libgcc>=0"
-      - "glibc-locales>=0"
-      - "tzdata"
-      - "kbd>=0"
-      - "iana-etc>=0"
-      - "iputils>=0"
-      - "iproute2"
-      # Drivers de disco e sistema de arquivos
-      - "coreutils>=0"
-      - "findutils>=0"
-      - "diffutils>=0"
-      - "dosfstools>=0"
-      # Empacotadores indispensáveis
-      - "tar>=0"
-      - "util-linux>=0"
-      # Manipulação de arquivos
-      - "which>=0"
-      - "file>=0"
-      - "less>=0"
-      - "gawk>=0"
-      - "sed>=0"
-      - "grep>=0"
-      # Indispensáveis para o kernel
-      - "ncurses>=0"
-      - "libgcc>=0"
-      - "shadow>=0"
-      - "kmod>=0"
-      - "eudev>=0"
-      # Gerenciamento de processos de baixo nível
-      - "procps-ng>=0"
-      - "runit-void>=0"
     ne_pkgs:
       # Kernel do sistema (padrão)
       - "linux"
@@ -177,7 +138,7 @@
     - name: "6.2] Bootstrap do sistema base (meta-pacote 'base-essential')"
       command: >
         xbps-install -S -r /mnt -R "{{ repo }}"
-        {{ m_pkgs }} -R ./repo base-essential
+        {{ ne_pkgs }} -R ./repo base-essential
       environment:
         XBPS_ARCH: "{{ arch }}"
       args:

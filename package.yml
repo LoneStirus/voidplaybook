@@ -1,0 +1,93 @@
+---
+# Antes de rodar esse script, é necessário antes rodar os seguintes comandos com privilégios elevados:
+# xbps-install -Syu xbps
+
+- name: "Fase 1 - Gerador do meta-pacote base-essential..."
+  hosts: localhost
+  connection: local
+  # -> Aqui teria "become": como na live USB já estariamos como root, não usamos.
+
+  vars:
+    dir_meta: "void-meta"
+    arch: x86_64
+    pkg_name: "base-essential-1.0.0_1"
+    pkg_file: "{{ pkg_name }}.{{ arch }}.xbps"
+    pkg_description: "Base essêncial escolhida a dedo, feita para ser enxuta e totalmente versátil."
+    pkg_by: "LoneStirus root@maiadigital.com.br"
+    m_pkgs:
+      # Utilitários e estruturas de baixo nível + espinha dorsal
+      - "base-files>=0.77"
+      - "removed-packages>=0"
+      - "pam-base"
+      - "dash>=0"
+      - "bash>=0"
+      - "xbps>=0"
+      - "libgcc>=0"
+      - "glibc-locales>=0"
+      - "tzdata"
+      - "kbd>=0"
+      - "iana-etc>=0"
+      - "iputils>=0"
+      - "iproute2"
+      # Drivers de disco e sistema de arquivos
+      - "coreutils>=0"
+      - "findutils>=0"
+      - "diffutils>=0"
+      - "dosfstools>=0"
+      # Empacotadores indispensáveis
+      - "tar>=0"
+      - "util-linux>=0"
+      # Manipulação de arquivos
+      - "which>=0"
+      - "file>=0"
+      - "less>=0"
+      - "gawk>=0"
+      - "sed>=0"
+      - "grep>=0"
+      # Indispensáveis para o kernel
+      - "ncurses>=0"
+      - "libgcc>=0"
+      - "shadow>=0"
+      - "kmod>=0"
+      - "eudev>=0"
+      # Gerenciamento de processos de baixo nível
+      - "procps-ng>=0"
+      - "runit-void>=0"
+    #eol
+  #eol
+
+  # Tarefas a serem executadas:
+  tasks:
+    # Um único "stat" decide, para todas as tasks abaixo, se o trabalho
+    # já foi feito. É mais claro que espalhar "creates:" em arquivos diferentes.
+    - name: "2] Verificar se o meta-pacote já existe no repo local"
+      stat:
+        path: "{{ dir_meta }}/repo/{{ pkg_file }}"
+      register: pkg_exists
+    #eol
+    - name: "2.1] Criar a estrutura de diretórios do template"
+      file:
+        path: "{{ dir_meta }}/payload"
+        state: directory
+      #eol
+    #eol
+    - name: "2.2] Gerar o pacote '.xbps' com xbps-create"
+      command: >
+        xbps-create -A {{ arch }}
+        -n {{ pkg_name }}
+        -s {{ pkg_description }}
+        -m {{ pkg_by }}
+        -D {{ m_pkgs }}
+        payload/
+      args:
+        chdir: "{{ dir_meta }}"
+      when: not pkg_exists.stat.exists
+    #eol
+    - name: "2.3] Reindexar o repositório local"
+      command: "xbps-rindex -a repo/{{ pkg_arquivo }}"
+      args:
+        chdir: "{{ dir_meta }}"
+      when: not pkg_exists.stat.exists
+    #eol
+  #eol
+#eol
