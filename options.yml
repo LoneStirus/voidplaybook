@@ -1,7 +1,8 @@
 ---
-#
-#
-#
+# Para utilizar esse script, é necessário algumas ferramentas que devem ser instaladas no ambiente live (USB).
+# As ferramentas são essas:
+# "gptfdisk", "nano" e "base-essential" (deve-se criar o meta-pacote antes).
+# O script também deve ser utilizado com os privilégios elevados.
 
 - name: "Fase 1 - Particionamento"
   hosts: localhost
@@ -14,7 +15,7 @@
     repo: "https://repo-fastly.voidlinux.org/current"
     arch: x86_64
     m_pkgs: ""
-    e_pkgs: "linux linux-headers opendoas nano btrfs-progs"
+    ne_pkgs: "linux linux-headers opendoas nano btrfs-progs"
   #eol
 
   tasks:
@@ -37,14 +38,14 @@
     #eol
     # Seção 4, formatação
     - name: "[4] Formatar ESP em FAT32"
-      community.general.filesystems:
+      community.general.filesystem:
         fstype: vfat
         dev: "{{ disk }}p1"
         opts: "-F 32 -n ESP"
       #eol
     #eol
     - name: "[4.1] Formatar VSP em BTRFS"
-      community.general.filesystems:
+      community.general.filesystem:
         fstype: btrfs
         dev: "{{ disk }}p2"
         opts: "-L VSP"
@@ -55,7 +56,7 @@
     - name: "[5] Criar subvolumes @, @home e @var_log"
       community.general.btrfs_subvolume:
         name: "/{{ item }}"
-        filesystems_device: "{{ disk }}p2"
+        filesystem_device: "{{ disk }}p2"
         automount: true
       loop: ["@", "@home", "@var_log"]
     #eol
@@ -130,7 +131,7 @@
       register: fstab_gerado
       changed_when: true
     #eol
-    - name: "[7] Gravar /mnt/etc/fstab"
+    - name: "[7.1] Gravar /mnt/etc/fstab"
       copy:
         content: "{{ fstab_generated.stdout }}\n"
         dest: /mnt/etc/fstab
