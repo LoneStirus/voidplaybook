@@ -2,29 +2,80 @@
 # Para utilizar esse script, é necessário algumas ferramentas que devem ser instaladas no ambiente live (USB).
 # As ferramentas são essas:
 # "gptfdisk", "nano" e "base-essential" (deve-se criar o meta-pacote antes).
-# O script também deve ser utilizado com os privilégios elevados.
+# O script também deve ser rodado com os privilégios elevados.
 
-- name: "Fase 1 - Particionamento"
+- name: "Fase 1 - Preparando o terreno para instalação..."
   hosts: localhost
   connection: local
   # -> Aqui teria "become": como na live USB já estariamos como root, não usamos.
 
-  # Aqui estão todas as variáveis de instalação, editar antes de prosseguir!
+  # Aqui estão todas as variáveis de instalação, editar antes de prosseguir:
   vars:
     disk: /dev/nvme0n1
     repo: "https://repo-fastly.voidlinux.org/current"
     arch: x86_64
-    m_pkgs: ""
-    ne_pkgs: "linux linux-headers opendoas nano btrfs-progs"
+    m_pkgs:
+      # Utilitários e estruturas de baixo nível + espinha dorsal
+      - "base-files>=0.77"
+      - "removed-packages>=0"
+      - "pam-base"
+      - "dash>=0"
+      - "bash>=0"
+      - "xbps>=0"
+      - "libgcc>=0"
+      - "glibc-locales>=0"
+      - "tzdata"
+      - "kbd>=0"
+      - "iana-etc>=0"
+      - "iputils>=0"
+      - "iproute2"
+      # Drivers de disco e sistema de arquivos
+      - "coreutils>=0"
+      - "findutils>=0"
+      - "diffutils>=0"
+      - "dosfstools>=0"
+      # Empacotadores indispensáveis
+      - "tar>=0"
+      - "util-linux>=0"
+      # Manipulação de arquivos
+      - "which>=0"
+      - "file>=0"
+      - "less>=0"
+      - "gawk>=0"
+      - "sed>=0"
+      - "grep>=0"
+      # Indispensáveis para o kernel
+      - "ncurses>=0"
+      - "libgcc>=0"
+      - "shadow>=0"
+      - "kmod>=0"
+      - "eudev>=0"
+      # Gerenciamento de processos de baixo nível
+      - "procps-ng>=0"
+      - "runit-void>=0"
+    ne_pkgs:
+      # Kernel do sistema (padrão)
+      - "linux"
+      - "linux-headers"
+      # Drivers de disco e sistema de arquivos
+      - "btrfs-progs"
+      # Utilitários
+      - "opendoas"
+      - "nano"
+      - "iwd"
+      - "openresolv"
+      - "gzip"
+    #eol
   #eol
 
+  # Tarefas a serem executadas:
   tasks:
     # Seção 3, particionamento
-    - name: "[3] Criar tabela GPT e as partições (ESP + Linux VSP)"
+    - name: "[3] Criar tabela GPT e partições (ESP + Linux VSP)"
       command: >
         sgdisk
         -n 1:0:+1G -t 1:ef00
-        -n 2:0:0   -t 2:8300
+        -n 2:0:+8G -t 2:8300
         {{ disk }}
       args:
         creates: "{{ disk }}p1"
@@ -53,7 +104,7 @@
       #eol
     #eol
     # Seção 5, subvolumes e montagem
-    - name: "[5] Criar subvolumes @, @home e @var_log"
+    - name: "[5] Criar subvolumes BTRFS @, @home e @var_log"
       community.general.btrfs_subvolume:
         name: "/{{ item }}"
         filesystem_device: "{{ disk }}p2"
@@ -65,7 +116,7 @@
         path: /mnt
         src: "{{ disk }}p2"
         fstype: btrfs
-        opts: "subvol=@,noatime,compress=zstd:1,autodefrag"
+        opts: "subvol=@,noatime,compress=zstd:1"
         state: ephemeral
       #eol
     #eol
@@ -80,7 +131,7 @@
         path: /mnt/home
         src: "{{ disk }}p2"
         fstype: btrfs
-        opts: "subvol=@home,noatime,compress=zstd:1,autodefrag"
+        opts: "subvol=@home,noatime,compress=zstd:1"
         state: ephemeral
       #eol
     #eol
@@ -89,7 +140,7 @@
         path: /mnt/var/log
         src: "{{ disk }}p2"
         fstype: btrfs
-        opts: "subvol=@var_log,relatime,compress=zstd:1,autodefrag"
+        opts: "subvol=@var_log,relatime,compress=zstd:1"
         state: ephemeral
       #eol
     #eol
@@ -115,7 +166,7 @@
         remote_src: true
       #eol
     #eol
-    - name: "[6.2] Bootstrap do sistema base (meta-pacote base-essential)"
+    - name: "[6.2] Bootstrap do sistema base (meta-pacote 'base-essential')"
       command: >
         xbps-install -S -r /mnt -R "{{ repo }}"
         {{ m_pkgs }} -R ./repo base-essential
@@ -128,7 +179,7 @@
     # Seção 7, FSTAB
     - name: "[7] Gerar conteúdo do fstab com xgenfstab"
       command: "xgenfstab -U /mnt"
-      register: fstab_gerado
+      register: fstab_generated
       changed_when: true
     #eol
     - name: "[7.1] Gravar /mnt/etc/fstab"
