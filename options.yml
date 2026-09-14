@@ -99,6 +99,7 @@
       ansible.posix.mount:
         path: /mnt
         state: unmounted
+        force: true
       #eol
     #eol
     - name: "4.2] Formatar VSP em BTRFS"
