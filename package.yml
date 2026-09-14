@@ -75,9 +75,9 @@
       command: >
         xbps-create -A {{ arch }}
         -n {{ pkg_name }}
-        -s {{ pkg_description }}
-        -m {{ pkg_by }}
-        -D {{ m_pkgs }}
+        -s "{{ pkg_description }}"
+        -m "{{ pkg_by }}"
+        -D "{{ m_pkgs }}"
         payload/
       args:
         chdir: "{{ dir_meta }}"
