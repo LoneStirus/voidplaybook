@@ -96,7 +96,7 @@
       #eol
     #eol
     - name: "4.1] Garantir que a partição '/mnt' está desmontada antes de prosseguir"
-      ansible.builtin.shell:
+      ansible.builtin.shell: |
         if mountpoint -q /mnt; then
           umount -R /mnt
         fi
