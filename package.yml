@@ -84,7 +84,7 @@
       when: not pkg_exists.stat.exists
     #eol
     - name: "2.3] Reindexar o repositório local"
-      command: "xbps-rindex -a repo/{{ pkg_arquivo }}"
+      command: "xbps-rindex -a repo/{{ pkg_file }}"
       args:
         chdir: "{{ dir_meta }}"
       when: not pkg_exists.stat.exists
