@@ -67,8 +67,11 @@
     #eol
     - name: "2.1] Criar a estrutura de diretórios do template"
       file:
-        path: "{{ dir_meta }}/payload"
+        path: "{{ item }}"
         state: directory
+      loop:
+        - "{{ dir_meta }}/payload"
+        - "{{ dir_meta }}/repo"
       #eol
     #eol
     - name: "2.2] Gerar o pacote '.xbps' com xbps-create"
@@ -83,7 +86,13 @@
         chdir: "{{ dir_meta }}"
       when: not pkg_exists.stat.exists
     #eol
-    - name: "2.3] Reindexar o repositório local"
+    - name: "2.3] Mover pacote gerado para a pasta repo"
+      ansible.builtin.shell: "mv *.xbps repo/"
+      args:
+        chdir: "{{ dir_meta }}"
+      when: not pkg_exists.stat.exists
+    #eol
+    - name: "2.4] Reindexar o repositório local"
       command: "xbps-rindex -a repo/{{ pkg_file }}"
       args:
         chdir: "{{ dir_meta }}"
