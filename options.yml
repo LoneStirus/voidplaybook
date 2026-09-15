@@ -137,8 +137,11 @@
     #eol
     - name: "6.2] Bootstrap do sistema base (meta-pacote 'base-essential')"
       command: >
-        xbps-install -S -r /mnt -R "{{ repo }}"
-        {{ ne_pkgs }} -R ./repo base-essential
+        xbps-install -Syr /mnt
+        -R "{{ repo }}"
+        -R ./repo
+        {{ ne_pkgs | join(' ') }}
+        base-essential
       environment:
         XBPS_ARCH: "{{ arch }}"
       args:
