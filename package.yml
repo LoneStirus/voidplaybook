@@ -80,7 +80,7 @@
         -n {{ pkg_name }}
         -s "{{ pkg_description }}"
         -m "{{ pkg_by }}"
-        -D "{{ m_pkgs }}"
+        -D "{{ m_pkgs | join(',') }}"
         payload/
       args:
         chdir: "{{ dir_meta }}"
