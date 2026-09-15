@@ -139,7 +139,7 @@
       command: >
         xbps-install -Syr /mnt
         -R "{{ repo }}"
-        -R ./repo
+        -R /home/anon/voidplaybook/void-meta/repo
         {{ ne_pkgs | join(' ') }}
         base-essential
       environment:
