@@ -13,8 +13,8 @@
   vars:
     machine_hostname: "Voidplaybook"
     user_name: "lones"
-    passwd_root_hash: ""
-    passwd_user_hash: ""
+    passwd_root_hash: "$6$IHBAYi2MsCLlGlel$P7JruZY1Zybd36Sb/KTFLftb82YethC25esaKJkBXT3Xkbd2r2xyhEboIntYfARUMY4tW/VmyB32S/.eCfcJk1"
+    passwd_user_hash: "$6$IHBAYi2MsCLlGlel$P7JruZY1Zybd36Sb/KTFLftb82YethC25esaKJkBXT3Xkbd2r2xyhEboIntYfARUMY4tW/VmyB32S/.eCfcJk1"
     timezone: "America/Sao_Paulo"
     keymap: "br-abnt2"
   #eol
