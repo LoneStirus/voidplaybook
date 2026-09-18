@@ -22,6 +22,7 @@
       - "btrfs-progs"
       # Utilitários
       - "opendoas"
+      - "openssh"
       - "nano"
       - "iwd"
       - "openresolv"

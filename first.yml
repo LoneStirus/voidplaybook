@@ -7,12 +7,13 @@
   connection: local
   # -> Aqui teria "become": como na live USB já estariamos como root, não usamos.
 
+  # Aqui estão todas as variáveis de instalação, editar antes de prosseguir:
   vars:
     dir_meta: "void-meta"
     arch: x86_64
     pkg_name: "base-essential-1.0.0_1"
     pkg_file: "{{ pkg_name }}.{{ arch }}.xbps"
-    pkg_description: "Base essêncial escolhida a dedo, feita para ser enxuta e totalmente versátil."
+    pkg_description: "A carefully curated essential foundation, designed to be streamlined and thoroughly professional."
     pkg_by: "LoneStirus root@maiadigital.com.br"
     m_pkgs:
       # Utilitários e estruturas de baixo nível + espinha dorsal

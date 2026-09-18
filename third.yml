@@ -1,0 +1,163 @@
+---
+#
+#
+#
+#
+
+- name: "Fase 3 - Pós-chroot..."
+  hosts: chroots
+  connection: community.general.chroot
+  # -> Aqui teria "become": como na live USB já estariamos como root, não usamos.
+
+  # Aqui estão todas as variáveis de instalação, editar antes de prosseguir:
+  vars:
+    machine_hostname: "Voidplaybook"
+    user_name: "lones"
+    passwd_root_hash: ""
+    passwd_user_hash: ""
+    timezone: "America/Sao_Paulo"
+    keymap: "br-abnt2"
+  #eol
+
+  # Tarefas a serem executadas:
+  tasks:
+    # Obrigatório antes de qualquer módulo normal (python3)
+    # "raw" é o único módulo que não exige Python do outro lado
+    # É a porta de entrada antes do resto funcionar dentro do chroot
+    - name: "0] Garantir python3 dentro do chroot"
+      raw: xbps-install -Sy python3
+    #eol
+    # Seção 9, dados da máquina
+    - name: "9] Definir o hostname, locale e timezone"
+      copy:
+        content: "{{ machine_hostname }}\n"
+        dest: /etc/hostname
+      #eol
+    #eol
+    - name: "9.1] Habilitar locales (pt_BR principal, en_US fallback)"
+      lineinfile:
+        path: /etc/default/libc-locales
+        regexp: '^#?\s*{{ item | regex_escape }}\s*$'
+        line: "{{ item }}"
+      loop:
+        - "pt_BR.UTF-8 UTF-8"
+        - "en_US.UTF-8 UTF-8"
+      #eol
+    #eol
+    - name: "9.2] Aplicar os locales habilitados"
+      command: xbps-reconfigure -f glibc-locales
+      changed_when: true
+    #eol
+    - name: "9.3] Definir timezone (symlink)"
+      file:
+        src: "/usr/share/zoneinfo/{{ timezone }}"
+        dest: /etc/localtime
+        state: link
+        force: true
+      #eol
+    #eol
+    - name: "9.4] Gravar o timezone no RTC"
+      command: hwclock --systohc
+      changed_when: true
+    #eol
+    # Seção 10, ajuste de periféricos
+    - name: "10] Ajustar rc.conf (CGROUP_MODE + KEYMAP)"
+      lineinfile:
+        path: /etc/rc.conf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^#?\s*CGROUP_MODE=',   line: 'CGROUP_MODE="unified"' }
+        - { regexp: '^#?\s*KEYMAP=',        line: 'KEYMAP="{{ keymap }}"' }
+      #eol
+    #eol
+    # Seção 11, usuários, senhas e superusuário
+    - name: "11] Senha do usuário ROOT"
+      user:
+        name: root
+        password: "{{ passwd_root_hash }}"
+      #eol
+    #eol
+    - name: "11.1] Criar usuário padrão"
+      user:
+        name: "{{ user_name }}"
+        groups: wheel,users
+        shell: /bin/bash
+        create_home: true
+        password: "{{ passwd_user_hash }}"
+      #eol
+    #eol
+    - name: "11.2] Configurar 'doas.conf' (grava conteúdo + permissão numa task só)"
+      copy:
+        content: "permit persist :wheel\n"
+        dest: /etc/doas.conf
+        mode: '0400'
+      #eol
+    #eol
+    # Seção 12, BOOTLOADER
+    - name: "12] Instalar pacote do GRUB (EFI)"
+      community.general.xbps:
+        name: grub-x86_64-efi
+        state: present
+      #eol
+    #eol
+    - name: "12.1] Garantir efivars montado"
+      ansible.posix.mount:
+        path: "/sys/firmware/efi/efivars"
+        src: none
+        fstype: efivars
+        state: mounted
+        # -> 'mounted' (não 'ephemeral') é o certo nesse ponto: isso é o /etc/fstab do SISTEMA FINAL, não da live - queremos que persista de fato
+      #eol
+    #eol
+    - name: "12.2] Instalar o bootloader no disco"
+      command: >
+        grub-install --target=x86_64-efi
+        --efi-directory=/boot/efi --bootloader-id="Void"
+      args:
+        creates: /boot/efi/EFI/Void
+      #eol
+    #eol
+    - name: "12.3] Ajustar '/etc/default/grub' (modo text, enxuto)"
+      lineinfile:
+        path: /etc/default/grub
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^#?GRUB_TIMEOUT=',           line: 'GRUB_TIMEOUT=2' }
+        - { regexp: '^#?GRUB_TIMEOUT_STYLE=',     line: 'GRUB_TIMEOUT_STYLE=menu' }
+        - { regexp: '^#?GRUB_TERMINAL=',          line: 'GRUB_TERMINAL=console' }
+        - { regexp: '^#?GRUB_DISABLE_OS_PROBER=', line: 'GRUB_DISABLE_OS_PROBER=true' }
+      #eol
+    #eol
+    # Seção 13, Conexão com a internet
+    - name: "13] Configurar '/etc/iwd/main.conf'"
+      copy:
+        dest: /etc/iwd/main.conf
+        content: |
+          [General]
+          EnableNetworkConfiguration=true
+          AddressRandomization=network
+          AddressRandomizationRange=nic
+
+          [Network]
+          NameResolvingService=none
+        #eol
+      #eol
+    #eol
+    - name: "13.1] Habilitar serviços runit (dbus, iwd)"
+      file:
+        src: "/etc/sv/{{ item }}"
+        dest: "/etc/runit/runsvdir/default/{{ item }}"
+        state: link
+      loop: [dbus, iwd]
+    #eol
+    # Seção 14, Repositórios e espelhos
+    - name: "14] Instalar repositório multilib-nonfree"
+      community.general.xbps:
+        name: void-repo-multilib-nonfree
+        state: present
+      #eol
+    #eol
+  #eol
+#eol
