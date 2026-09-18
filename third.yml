@@ -107,8 +107,7 @@
         path: "/sys/firmware/efi/efivars"
         src: none
         fstype: efivars
-        state: mounted
-        # -> 'mounted' (não 'ephemeral') é o certo nesse ponto: isso é o /etc/fstab do SISTEMA FINAL, não da live - queremos que persista de fato
+        state: ephemeral
       #eol
     #eol
     - name: "12.2] Instalar o bootloader no disco"
@@ -130,6 +129,10 @@
         - { regexp: '^#?GRUB_TERMINAL=',          line: 'GRUB_TERMINAL=console' }
         - { regexp: '^#?GRUB_DISABLE_OS_PROBER=', line: 'GRUB_DISABLE_OS_PROBER=true' }
       #eol
+    #eol
+    - name: "12.4] Gerar ficheiro 'grub.cfg'"
+      command: grub-mkconfig -o /boot/grub/grub.cfg
+      changed_when: true
     #eol
     # Seção 13, Conexão com a internet
     - name: "13] Configurar '/etc/iwd/main.conf'"
