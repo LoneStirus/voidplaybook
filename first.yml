@@ -19,7 +19,7 @@
       # Utilitários e estruturas de baixo nível + espinha dorsal
       - "base-files>=0.77"
       - "removed-packages>=0"
-      - "pam-base"
+      # - "pam-base"
       - "dash>=0"
       - "bash>=0"
       - "xbps>=0"

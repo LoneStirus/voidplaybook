@@ -136,25 +136,9 @@
         remote_src: true
       #eol
     #eol
-    - name: "6.2] Copiar 'resolv.conf' para o novo sistema"
-      copy:
-        src: /etc/resolv.conf
-        dest: /mnt/etc/resolv.conf
-        remote_src: true
-      #eol
-    #eol
-    - name: "6.3] Montar pseudo-sistemas para suportar hooks do kernel"
-      ansible.posix.mount:
-        path: "/mnt/{{ item }}"
-        src: "/{{ item }}"
-        fstype: none
-        opts: rbind
-        state: ephemeral
-      loop: [dev, proc, sys]
-    #eol
-    - name: "6.4] Bootstrap do sistema base (meta-pacote 'base-essential')"
+    - name: "6.2] Bootstrap do sistema base (meta-pacote 'base-essential')"
       command: >
-        xbps-install -Syr /mnt
+        xbps-install -S -y -r /mnt
         -R "{{ repo }}"
         -R /home/anon/voidplaybook/void-meta/repo
         base-essential {{ ne_pkgs | join(' ') }}
@@ -175,6 +159,23 @@
         content: "{{ fstab_generated.stdout }}\n"
         dest: /mnt/etc/fstab
       #eol
+    #eol
+    # Seção 8, Montagem de pseudo-sistemas
+    - name: "8] Copiar 'resolv.conf' para o novo sistema"
+      copy:
+        src: /etc/resolv.conf
+        dest: /mnt/etc/resolv.conf
+        remote_src: true
+      #eol
+    #eol
+    - name: "8.1] Montar pseudo-sistemas para suportar hooks do kernel"
+      ansible.posix.mount:
+        path: "/mnt/{{ item }}"
+        src: "/{{ item }}"
+        fstype: none
+        opts: rbind
+        state: ephemeral
+      loop: [dev, proc, sys]
     #eol
   #eol
 #eol

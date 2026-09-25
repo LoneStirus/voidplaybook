@@ -1,27 +1,4 @@
 {
-    // Interface:
-    "workbench.startupEditor": "none",
-    "workbench.colorTheme": "Celestial",
-    "workbench.iconTheme": "material-icon-theme",
-    "workbench.browser.showInTitleBar": false,
-    "workbench.layoutControl.enabled": false,
-    "workbench.navigationControl.enabled": false,
-    "window.commandCenter": false,
-    "window.menuBarVisibility": "compact",
-    "editor.minimap.enabled": false,
-    "breadcrumbs.enabled": false,
-
-    // Editor:
-    "editor.fontFamily": "CaskaydiaCove Nerd Font Mono",
-    "chat.fontFamily": "default",
-    "editor.fontSize": 16,
-    "editor.lineHeight": 1.4,
-    "editor.tabSize": 2,
-    "editor.insertSpaces": false,
-    "editor.cursorStyle": "line-thin",
-    "editor.fontLigatures": true,
-    "files.eol": "\n",
-
-    // Gerenciamento de arquivos:
-    "files.autoSave": "off"
+    // Formatação
+    "files.eol": "\n"
 }
