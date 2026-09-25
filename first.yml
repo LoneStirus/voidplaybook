@@ -32,7 +32,7 @@
       - "kbd>=0"
       - "iana-etc>=0"
       - "iputils>=0"
-      - "iproute2"
+      - "iproute2>=0"
       # Drivers de disco e sistema de arquivos
       - "coreutils>=0"
       - "findutils>=0"
