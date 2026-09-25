@@ -102,14 +102,14 @@
         state: present
       #eol
     #eol
-    # - name: "12.1] Garantir efivars montado"
-    #   ansible.posix.mount:
-    #     path: "/sys/firmware/efi/efivars"
-    #     src: none
-    #     fstype: efivars
-    #     state: ephemeral
-    #   #eol
-    # #eol
+    - name: "12.1] Garantir efivars montado"
+      ansible.posix.mount:
+        path: "/sys/firmware/efi/efivars"
+        src: none
+        fstype: efivars
+        state: ephemeral
+      #eol
+    #eol
     - name: "12.2] Instalar o bootloader no disco"
       command: >
         grub-install --target=x86_64-efi
