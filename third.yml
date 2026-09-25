@@ -26,7 +26,7 @@
     # "raw" é o único módulo que não exige Python do outro lado
     # É a porta de entrada antes do resto funcionar dentro do chroot
     - name: "0] Garantir python3 dentro do chroot"
-      raw: /usr/bin/xbps-install -Sy python3
+      raw: xbps-install -Sy python3
     #eol
     # Seção 9, dados da máquina
     - name: "9] Definir o hostname, locale e timezone"

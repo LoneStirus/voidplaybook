@@ -1,6 +1,9 @@
 ---
 # Antes de rodar esse script, é necessário antes rodar os seguintes comandos com privilégios elevados:
-# xbps-install -Syu xbps
+# $ xbps-install -Syu xbps
+# $ xbps-install -Sy python3-setuptools python3-pipx python3-devel
+# $ pipx ensurepath
+# $ pipx install --include-deps ansible
 
 - name: "Fase 1 - Gerador do meta-pacote base-essential..."
   hosts: localhost
