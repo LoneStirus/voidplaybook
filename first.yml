@@ -28,7 +28,7 @@
       - "xbps>=0"
       - "libgcc>=0"
       - "glibc-locales>=0"
-      - "tzdata"
+      - "tzdata>=0"
       - "kbd>=0"
       - "iana-etc>=0"
       - "iputils>=0"
