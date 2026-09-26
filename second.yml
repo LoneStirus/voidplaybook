@@ -174,7 +174,7 @@
         src: "/{{ item }}"
         fstype: none
         opts: rbind
-        state: ephemeral
+        state: mounted
       loop: [dev, proc, sys]
     #eol
   #eol
