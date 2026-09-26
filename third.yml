@@ -60,6 +60,7 @@
     - name: "9.4] Gravar o timezone no RTC"
       command: hwclock --systohc
       changed_when: true
+      ignore_errors: true
     # #eol
     # Seção 10, ajuste de periféricos
     - name: "10] Ajustar rc.conf (CGROUP_MODE + KEYMAP)"
