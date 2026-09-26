@@ -27,7 +27,6 @@
       - "iwd"
       - "openresolv"
       - "gzip"
-    ansible_interpreter_discovery_mode: silent
     #eol
   #eol
 
