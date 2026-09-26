@@ -22,7 +22,7 @@
 
   # Tarefas a serem executadas:
   tasks:
-    # Obrigatório antes de qualquer módulo normal (python3)
+    # Obrigatório antes de qualquer módulo normal (precisa de python3)
     # "raw" é o único módulo que não exige Python do outro lado
     # É a porta de entrada antes do resto funcionar dentro do chroot
     - name: "0] Garantir python3 dentro do chroot"
@@ -57,9 +57,9 @@
         force: true
       #eol
     #eol
-    # - name: "9.4] Gravar o timezone no RTC"
-    #   command: hwclock --systohc
-    #   changed_when: true
+    - name: "9.4] Gravar o timezone no RTC"
+      command: hwclock --systohc
+      changed_when: true
     # #eol
     # Seção 10, ajuste de periféricos
     - name: "10] Ajustar rc.conf (CGROUP_MODE + KEYMAP)"
