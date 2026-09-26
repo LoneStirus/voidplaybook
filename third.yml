@@ -107,7 +107,7 @@
       ansible.posix.mount:
         path: "/sys/firmware/efi/efivars"
         src: none
-        fstype: efivars
+        fstype: efivarfs
         state: ephemeral
       #eol
     #eol
