@@ -5,10 +5,10 @@
 
 # Variáveis globais para esse papel, altere conforme necessidade:
 # Diretório meta:
-dir_meta: "/path/to/meta"
+dir_meta: "void-meta"
 
 # Nome do arquivo do pacote:
-pkg_file: "package.xbps"
+pkg_file: "{{ pkg_name }}.{{ arch }}.xbps"
 
 # Arquitetura do sistema:
 arch: "x86_64"
