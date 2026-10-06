@@ -1,0 +1,65 @@
+---
+#
+#
+#
+
+# Variáveis globais para esse papel, altere conforme necessidade:
+# Diretório meta:
+dir_meta: "/path/to/meta"
+
+# Nome do arquivo do pacote:
+pkg_file: "package.xbps"
+
+# Arquitetura do sistema:
+arch: "x86_64"
+
+# Nome do pacote:
+pkg_name: "base-essential-1.0.0_1"
+
+# Descrição do pacote:
+pkg_description: "A carefully curated essential foundation, designed to be streamlined and thoroughly professional."
+
+# Autor do pacote:
+pkg_by: "LoneStirus work@maiadigital.com.br"
+
+# Lista de pacotes dependentes:
+m_pkgs:
+  # Utilitários e estruturas de baixo nível + espinha dorsal
+  - "base-files>=0.77"
+  - "removed-packages>=0"
+  # - "pam-base>=0"
+  - "dash>=0"
+  - "bash>=0"
+  - "xbps>=0"
+  - "libgcc>=0"
+  - "glibc-locales>=0"
+  - "tzdata>=0"
+  - "kbd>=0"
+  - "iana-etc>=0"
+  - "iputils>=0"
+  - "iproute2>=0"
+  # Drivers de disco e sistema de arquivos
+  - "coreutils>=0"
+  - "findutils>=0"
+  - "diffutils>=0"
+  - "dosfstools>=0"
+  # Empacotadores indispensáveis
+  - "tar>=0"
+  - "util-linux>=0"
+  # Manipulação de arquivos
+  - "which>=0"
+  - "file>=0"
+  - "less>=0"
+  - "gawk>=0"
+  - "sed>=0"
+  - "grep>=0"
+  # Indispensáveis para o kernel
+  - "ncurses>=0"
+  - "libgcc>=0"
+  - "shadow>=0"
+  - "kmod>=0"
+  - "eudev>=0"
+  # Gerenciamento de processos de baixo nível
+  - "procps-ng>=0"
+  - "runit-void>=0"
+#eol

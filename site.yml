@@ -5,21 +5,20 @@
 
 - name: "Fase (1)"
   hosts: localhost
-  gather_facts: true
-  roles:
-    - role: 02_during_install
-      vars:
-        disk: "{{ disk }}"
-        repo: "{{ repo }}"
-        arch: "{{ arch }}"
-        ne_pkgs: "{{ ne_pkgs }}"
-      #eol
-    #eol
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
   #eol
 #eol
 - name: "Fase (2)"
+  hosts: localhost
+  gather_facts: true
+  vars_files:
+    - vars/main.yml
+  #eol
+#eol
+- name: "Fase (3)"
   hosts: chroots
-  roles:
-    - 03_postaf_install
+  gather_facts: false
   #eol
 #eol

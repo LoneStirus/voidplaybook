@@ -1,0 +1,48 @@
+---
+#
+#
+#
+
+# AUTOMAÇÃO, único 'stat' decide, para todas as tasks abaixo, se o trabalho já foi feito.
+- name: "AUTOMAÇÃO"
+  stat:
+    path: "{{ dir_meta }}/repo/{{ pkg_file }}"
+  register: pkg_exists
+#eol
+# REQUISITO, criar estrutura de diretórios do template.
+- name: "REQUISITO"
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ dir_meta }}/payload"
+    - "{{ dir_meta }}/repo"
+  #eol
+#eol
+# Seção 1, gerar pacote '.xbps' com xbps-create.
+- name: "Seção (1)"
+  command: >
+    xbps-create -A {{ arch }}
+    -n {{ pkg_name }}
+    -s "{{ pkg_description }}"
+    -m "{{ pkg_by }}"
+    -D "{{ m_pkgs | join(' ') }}"
+    payload/
+  args:
+    chdir: "{{ dir_meta }}"
+  when: not pkg_exists.stat.exists
+#eol
+# Seção 1.1, mover pacote gerado para a pasta repo.
+- name: "Seção (1.1)"
+  ansible.builtin.shell: "mv *.xbps repo/"
+  args:
+    chdir: "{{ dir_meta }}"
+  when: not pkg_exists.stat.exists
+#eol
+# Seção 1.2, reindexar o repositório local.
+- name: "Seção (1.2)"
+  command: "xbps-rindex -a repo/{{ pkg_file }}"
+  args:
+    chdir: "{{ dir_meta }}"
+  when: not pkg_exists.stat.exists
+#eol
