@@ -3,6 +3,7 @@
 #
 #
 
+# Fase 1, criação do meta-pacote.
 - name: "Fase (1)"
   hosts: localhost
   gather_facts: false
@@ -10,13 +11,26 @@
     - vars/main.yml
   #eol
 #eol
+# Fase 2, processo instalação (bootstrap).
 - name: "Fase (2)"
   hosts: localhost
   gather_facts: true
   vars_files:
     - vars/main.yml
+  tasks:
+    - name: "Tarefa 2.1"
+      debug:
+        msg: "Executando Tarefa 2.1..."
+      tags: [fase2]
+    #eol
+    - name: "Tarefa 2.2"
+      debug:
+        msg: "Executando Tarefa 2.2..."
+      tags: [fase2]
+    #eol
   #eol
 #eol
+# Fase 3, processo de pós-instalação (chroot).
 - name: "Fase (3)"
   hosts: chroots
   gather_facts: false
