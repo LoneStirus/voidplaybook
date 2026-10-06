@@ -1,0 +1,151 @@
+---
+#
+#
+#
+
+# VERIFICAÇÃO, garantir que a part. '/mnt' está desmontada antes de prosseguir.
+- name: "VERIFICAÇÃO"
+  ansible.builtin.shell: |
+    if mountpoint -q /mnt; then
+      umount -R /mnt
+    fi
+  changed_when: false
+#eol
+# Seção 1, criação das partições do sistema:
+# =============== #
+# 1º ESP | 1-2GiB #
+# 2º VSP | 930GiB #
+# =============== #
+- name: "Seção (1)"
+  command: >
+    sgdisk
+    -n 1:0:+1G -t 1:ef00
+    -n 2:0:+8G -t 2:8300
+    {{ disk }}
+  args:
+    creates: "{{ disk }}p1"
+  #eol
+#eol
+# Seção 2, formatação da partição ESP (EFI System Partition).
+- name: "Seção (2)"
+  community.general.filesystem:
+    fstype: vfat
+    dev: "{{ disk }}p1"
+    opts: "-F 32 -n ESP"
+    force: true
+  #eol
+#eol
+# Seção 3, formatação da partição VSP (Void System Partition).
+- name: "Seção (3)"
+  community.general.filesystem:
+  fstype: btrfs
+  dev: "{{ disk }}p2"
+  opts: "-L VSP"
+  force: true
+#eol
+# Seção 4, criação dos subvolumes e montagem, com a seguinte ordem:
+# 1° Cria os subvolumes.
+# 2° Monta o subvolume @ em '/mnt'.
+# 3° Cria pastas de destino dos demais pontos de montagem.
+# 4° Monta subvolume @home.
+# 5° Monta subvolume @var_log.
+# 6° Monta partição ESP em '/mnt/boot/efi'.
+- name: "Seção (4)"
+  community.general.btrfs_subvolume:
+    name: "/{{ item }}"
+    filesystem_device: "{{ disk }}p2"
+    automount: true
+  loop: ["@", "@home", "@var_log"]
+#eol
+- name: "Seção (4.1)"
+  ansible.posix.mount:
+    path: /mnt
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@,noatime,compress=zstd:1"
+    state: ephemeral
+  #eol
+#eol
+- name: "Seção (4.2)"
+  file:
+    path: "/mnt/{{ item }}"
+    state: directory
+  loop: ["home", "var/log", "boot/efi"]
+#eol
+- name: "Seção (4.3)"
+  ansible.posix.mount:
+    path: /mnt/home
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@home,noatime,compress=zstd:1"
+    state: ephemeral
+  #eol
+#eol
+- name: "Seção (4.4)"
+  ansible.posix.mount:
+    path: /mnt/var/log
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@var_log,relatime,compress=zstd:1"
+    state: ephemeral
+  #eol
+#eol
+- name: "Seção (4.5)"
+  ansible.posix.mount:
+    path: /mnt/boot/efi
+    src: "{{ disk }}p1"
+    fstype: vfat
+    state: ephemeral
+  #eol
+#eol
+# REQUISITO - INSTALAÇÃO, criar diretório de chaves assinadas do xbps no novo sistema.
+- name: "REQUISITO - INSTALAÇÃO"
+  file:
+    path: /mnt/var/db/xbps/keys
+    state: directory
+  #eol
+#eol
+# REQUISITO - INSTALAÇÃO, copiar chaves de assinatura para o novo sistema.
+- name: "REQUISITO - INSTALAÇÃO"
+  copy:
+    src: /var/db/xbps/keys/
+    dest: /mnt/var/db/xbps/keys/
+    remote_src: true
+  #eol
+#eol
+# Seção 5, bootstrap do sistema (baixar arquivos) do sistema base (meta-pacote 'base-essential').
+- name: "Seção (5)"
+  command: >
+    xbps-install -S -y -r /mnt
+    -R "{{ repo }}"
+    -R /home/anon/voidplaybook/void-meta/repo
+    base-essential {{ ne_pkgs | join(' ') }}
+  environment:
+    XBPS_ARCH: "{{ arch }}"
+  args:
+    creates: /mnt/etc/rc.conf
+  #eol
+#eol
+# Seção 6, gerar conteúdo do fstab com xgenfstab.
+- name: "Seção (6)"
+  command: "xgenfstab -U /mnt"
+  register: fstab_generated
+  changed_when: false
+#eol
+# REQUISITO - PÓS_INSTALAÇÂO, copiar 'resolv.conf' para o novo sistema.
+- name: "REQUISITO - PÓS_INSTALAÇÂO"
+  copy:
+    content: "{{ fstab_generated.stdout }}\n"
+    dest: /mnt/etc/fstab
+  #eol
+#eol
+# REQUISITO - PÓS_INSTALAÇÂO, montar pseudo-sistemas para suportar hooks do kernel.
+- name: "Seção (7)"
+  ansible.posix.mount:
+    path: "/mnt/{{ item }}"
+    src: "/{{ item }}"
+    fstype: none
+    opts: rbind
+    state: mounted
+  loop: [dev, proc, sys]
+#eol

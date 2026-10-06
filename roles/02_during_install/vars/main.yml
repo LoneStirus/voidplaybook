@@ -1,0 +1,30 @@
+---
+#
+#
+#
+
+# Variáveis globais para esse papel, altere conforme necessidade:
+# Disco alvo:
+disk: "/dev/nvme0n1"
+
+# Repositório para instalação:
+repo: "https://repo-fastly.voidlinux.org/current"
+
+# Arquitetura do sistema:
+arch: "x86_64"
+
+# Lista de pacotes não essênciais na base (ne_pkgs):
+ne_pkgs:
+  # Kernel do sistema (padrão).
+  - "linux"
+  - "linux-headers"
+  # Drivers de disco e sistema de arquivos.
+  - "btrfs-progs"
+  # Utilitários.
+  - "opendoas"
+  - "openssh"
+  - "nano"
+  - "iwd"
+  - "openresolv"
+  - "gzip"
+#eol
