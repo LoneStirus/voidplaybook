@@ -9,5 +9,6 @@
   gather_facts: false
   roles:
     - 01_during_install
+  tags: [fase1]
   #eol
 #eol

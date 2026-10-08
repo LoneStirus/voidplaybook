@@ -38,10 +38,11 @@
 # Seção 3, formatação da partição VSP (Void System Partition).
 - name: "Seção (3)"
   community.general.filesystem:
-  fstype: btrfs
-  dev: "{{ disk }}p2"
-  opts: "-L VSP"
-  force: true
+    fstype: btrfs
+    dev: "{{ disk }}p2"
+    opts: "-L VSP"
+    force: true
+  #eol
 #eol
 # Seção 4, criação dos subvolumes e montagem, com a seguinte ordem:
 # 1° Cria os subvolumes.
