@@ -3,12 +3,20 @@
 #
 #
 
-# Fase 1, criação do meta-pacote.
+# Pré-fase, criação do meta-pacote.
+- name: "BUILDING"
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - build_package
+  tags: [building]
+#eol
+
+# Fase 1, processo de instalação do sistema.
 - name: "Fase (1)"
   hosts: localhost
   gather_facts: false
   roles:
     - 01_during_install
   tags: [fase1]
-  #eol
 #eol
