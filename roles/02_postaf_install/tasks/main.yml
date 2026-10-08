@@ -1,0 +1,12 @@
+---
+#
+#
+#
+
+# Seção 1, definir hostname da máquina.
+- name: "Seção (1)"
+  copy:
+    content: "{{ machine_hostname }}\n"
+    dest: /etc/hostname
+  #eol
+#eol

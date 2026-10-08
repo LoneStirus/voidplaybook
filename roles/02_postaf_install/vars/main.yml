@@ -1,0 +1,8 @@
+---
+#
+#
+#
+
+# Variáveis globais para esse papel, altere conforme necessidade:
+# Hostname da máquina:
+machine_hostname: "Voidplaybook"

@@ -24,6 +24,7 @@ ne_pkgs:
   - "opendoas"
   - "openssh"
   - "nano"
+  - "dhcpcd"
   - "iwd"
   - "openresolv"
   - "gzip"
