@@ -10,3 +10,14 @@
     dest: "{{ chroot_dir }}/etc/hostname"
   #eol
 #eol
+# Seção 1.1, habilitar locales ('pt_BR' principal, 'en_US' fallback).
+- name: "Seção (1.1)"
+  lineinfile:
+    path: "{{ chroot_dir }}/etc/default/libc-locales"
+    regexp: '^#?\s*{{ item | regex_escape }}\s*$'
+    line: "{{ item }}"
+  loop:
+    - "pt_BR.UTF-8 UTF-8"
+    - "en_US.UTF-8 UTF-8"
+  #eol
+#eol
