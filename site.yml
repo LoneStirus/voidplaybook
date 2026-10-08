@@ -23,9 +23,9 @@
 
 # Fase 2, processo de pós-instalação do sistema.
 - name: "Fase (2)"
-  hosts: void_target
+  hosts: localhost
   gather_facts: false
   roles:
     - 02_postaf_install
-  tags: [fase1]
+  tags: [fase2]
 #eol

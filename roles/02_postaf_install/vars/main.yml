@@ -4,5 +4,7 @@
 #
 
 # Variáveis globais para esse papel, altere conforme necessidade:
+# Diretório alvo chroot:
+chroot_dir: "/mnt"
 # Hostname da máquina:
 machine_hostname: "Voidplaybook"
