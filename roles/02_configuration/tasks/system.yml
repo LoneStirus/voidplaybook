@@ -1,0 +1,92 @@
+---
+#
+#
+#
+
+# Agrupa todas as configurações de nível de sistema.
+# (1) Definir o hostname da máquina:
+- name: "(1) DEFININDO HOSTNAME..."
+  copy:
+    dest: "{{ chroot_dir }}/etc/hostname"
+    owner: root
+    group: root
+    mode: "0644"
+    content: "{{ machine_hostname }}\n"
+    create: true
+  #eol
+#eol
+# (2) Definir locales ('pt_BR' principal, 'en_US' fallback):
+- name: "(2) DEFININDO LOCALES..."
+  lineinfile:
+    path: "{{ chroot_dir }}/etc/default/libc-locales"
+    regexp: '^#?\s*{{ item | regex_escape }}\s*$'
+    line: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - "pt_BR.UTF-8 UTF-8"
+    - "pt_BR ISO-8859-1"
+    - "en_US.UTF-8 UTF-8"
+    - "en_US ISO-8859-1"
+  #eol
+#eol
+# (3) Definir locale ('pt_BR' principal, 'en_US' fallback):
+- name: "(3) DEFININDO LOCALE..."
+  copy:
+    dest: "{{ chroot_dir }}/etc/locale.conf"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      LANG=pt_BR.UTF-8
+      LANGUAGE=pt_BR:en_US
+      LC_CTYPE=pt_BR.UTF-8
+      LC_NUMERIC=pt_BR.UTF-8
+      LC_TIME=pt_BR.UTF-8
+      LC_COLLATE=pt_BR.UTF-8
+      LC_MONETARY=pt_BR.UTF-8
+      LC_MESSAGES=pt_BR.UTF-8
+      LC_PAPER=pt_BR.UTF-8
+      LC_NAME=pt_BR.UTF-8
+      LC_ADDRESS=pt_BR.UTF-8
+      LC_TELEPHONE=pt_BR.UTF-8
+      LC_MEASUREMENT=pt_BR.UTF-8
+      LC_IDENTIFICATION=pt_BR.UTF-8
+    create: true
+  #eol
+#eol
+# (4) Definir layout de teclado e relógio de hardware:
+- name: "(4) DEFININDO LAYOUT DO TECLADO E RELÓGIO DE HARDWARE..."
+  blockinfile:
+    path: "{{ chroot_dir }}/etc/rc.conf"
+    owner: root
+    group: root
+    mode: "0644"
+    block: |
+      KEYMAP="{{ layout_keymap }}"
+      HARDWARECLOCK="UTC"
+    create: true
+  #eol
+#eol
+# (5) Definir timezone (symlink):
+- name: "(5) DEFININDO TIMEZONE..."
+  file:
+    src: "{{ chroot_dir }}/usr/share/zoneinfo/{{ timezone }}"
+    dest: "{{ chroot_dir }}/etc/localtime"
+    state: link
+    force: true
+  #eol
+#eol
+# (6) Aplicar os locales ( ref. (2) ):
+- name: "(6) APLICANDO LOCALES..."
+  command: xbps-reconfigure -f glibc-locales
+  changed_when: true
+  ignore_errors: true
+#eol
+# (7) Gravar o timezone no RTC ( ref. (5) ):
+- name: "(7) APLICANDO TIMEZONE..."
+  command: hwclock --systohc
+  changed_when: true
+  ignore_errors: true
+#eol

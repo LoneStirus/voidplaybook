@@ -1,0 +1,8 @@
+---
+#
+#
+#
+
+# Variáveis globais desse playbook, usadas por todos os scripts que precisarem.
+# (1) Arquitetura do sistema:
+arch: "x86_64"
