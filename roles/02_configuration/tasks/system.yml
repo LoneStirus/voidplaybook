@@ -12,7 +12,6 @@
     group: root
     mode: "0644"
     content: "{{ machine_hostname }}\n"
-    create: true
   #eol
 #eol
 # (2) Definir locales ('pt_BR' principal, 'en_US' fallback):
@@ -53,7 +52,7 @@
       LC_TELEPHONE=pt_BR.UTF-8
       LC_MEASUREMENT=pt_BR.UTF-8
       LC_IDENTIFICATION=pt_BR.UTF-8
-    create: true
+    #eol
   #eol
 #eol
 # (4) Definir layout de teclado e relógio de hardware:
@@ -72,7 +71,7 @@
 # (5) Definir timezone (symlink):
 - name: "(5) DEFININDO TIMEZONE..."
   file:
-    src: "{{ chroot_dir }}/usr/share/zoneinfo/{{ timezone }}"
+    src: "/usr/share/zoneinfo/{{ timezone }}"
     dest: "{{ chroot_dir }}/etc/localtime"
     state: link
     force: true
@@ -80,13 +79,13 @@
 #eol
 # (6) Aplicar os locales ( ref. (2) ):
 - name: "(6) APLICANDO LOCALES..."
-  command: xbps-reconfigure -f glibc-locales
+  command: "chroot {{ chroot_dir }} xbps-reconfigure -f glibc-locales"
   changed_when: true
   ignore_errors: true
 #eol
 # (7) Gravar o timezone no RTC ( ref. (5) ):
 - name: "(7) APLICANDO TIMEZONE..."
-  command: hwclock --systohc
+  command: "chroot {{ chroot_dir }} hwclock --systohc"
   changed_when: true
   ignore_errors: true
 #eol

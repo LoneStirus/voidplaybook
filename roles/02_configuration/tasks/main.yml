@@ -3,74 +3,18 @@
 #
 #
 
-# Seção 2, ajuste de periféricos.
-- name: "Seção (2)"
-  lineinfile:
-    path: /etc/rc.conf
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-  loop:
-    - { regexp: '^#?\s*CGROUP_MODE=', line: 'CGROUP_MODE="unified"' }
-    - { regexp: '^#?\s*KEYMAP=', line: 'KEYMAP="{{ keymap }}"' }
-  #eol
+# Arquivo principal que puxa todas as tasks subsequêntes.
+# (1) Executar configurações de Hardware:
+# - name: "(1) HARDWARE:"
+#   include_tasks: hardware.yml
 #eol
-# Seção 3, usuários, senhas e superusuário.
-- name: "Seção (3)"
-  user:
-    name: root
-    password: "{{ passwd_root_hash }}"
-  #eol
+
+# (2) Executar configurações de Sistema:
+- name: "(2) SISTEMA:"
+  include_tasks: system.yml
 #eol
-# Seção 3.1, criar o usuário padrão.
-- name: "Seção (3.1)"
-  user:
-    name: "{{ user_name }}"
-    groups: wheel,users
-    shell: /bin/bash
-    create_home: true
-    password: "{{ passwd_user_hash }}"
-  #eol
-#eol
-# Seção 3.2, configurar doas.
-- name: "Seção (3.2)"
-  copy:
-    content: "permit persist :wheel\n"
-    dest: /etc/doas.conf
-    mode: "0400"
-  #eol
-#eol
-# VERIFICAÇÃO, garantir efivars montado (ref, s4).
-- name: "VERIFICAÇÃO - BOOTLOADER"
-  ansible.posix.mount:
-    path: "/sys/firmware/efi/efivars"
-    src: none
-    fstype: efivarfs
-    state: mounted
-  #eol
-#eol
-# Seção 4, carregador de inicialização.
-- name: "Seção (4)"
-  command: >
-    grub-install --target=x86_64-efi
-    --efi-directory=/boot/efi --bootloader-id="Void"
-  args:
-    creates: /boot/efi/EFI/Void
-  #eol
-#eol
-# Seção 4.1, ajustar o grub.
-- name: "Seção (4.1)"
-  lineinfile:
-    path: /etc/default/grub
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-  loop:
-    - { regexp: "^#?GRUB_TIMEOUT=", line: "GRUB_TIMEOUT=2" }
-    - { regexp: "^#?GRUB_TIMEOUT_STYLE=", line: "GRUB_TIMEOUT_STYLE=menu" }
-    - { regexp: "^#?GRUB_TERMINAL=", line: "GRUB_TERMINAL=console" }
-    - {
-        regexp: "^#?GRUB_DISABLE_OS_PROBER=",
-        line: "GRUB_DISABLE_OS_PROBER=true",
-      }
-    #eol
-  #eol
+
+# (3) Executar configurações de Usuários:
+# - name: "(3) USUÁRIO:"
+#   include_tasks: users.yml
 #eol

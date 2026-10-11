@@ -1,0 +1,34 @@
+---
+#
+#
+#
+
+# Agrupa todas as definições de usuários do sistema.
+# (1) Definir senha do usuário root:
+- name: "(1) DEFININDO SENHA DO ROOT..."
+  user:
+    name: root
+    password: "{{ passwd_root_hash }}"
+  #eol
+#eol
+# (2) Definir usuário padrão:
+- name: "(2) DEFININDO O USUÁRIO PADRÃO..."
+  user:
+    name: "{{ user_name }}"
+    groups: wheel,users
+    shell: "{{ chroot_dir }}/bin/bash"
+    create_home: true
+    password: "{{ passwd_user_hash }}"
+  #eol
+#eol
+# (3) Definir configuração do doas (elevador de previlégios):
+- name: "(3) DEFININDO CONFIGURAÇÃO DO DOAS..."
+  copy:
+    dest: "{{ chroot_dir }}/etc/doas.conf"
+    owner: root
+    group: root
+    mode: "0400"
+    content: "permit persist :wheel\n"
+    create: true
+  #eol
+#eol
