@@ -5,14 +5,14 @@
 
 # Agrupa todas as definições de usuários do sistema.
 # (1) Definir senha do usuário root:
-- name: "(1) DEFININDO SENHA DO ROOT..."
+- name: "(1) DEFININDO O USUÁRIO ROOT..."
   user:
     name: root
     password: "{{ passwd_root_hash }}"
   #eol
 #eol
-# (2) Definir usuário padrão:
-- name: "(2) DEFININDO O USUÁRIO PADRÃO..."
+# (2) Definir usuário normal:
+- name: "(2) DEFININDO O USUÁRIO NORMAL..."
   user:
     name: "{{ user_name }}"
     groups: wheel,users

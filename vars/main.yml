@@ -3,6 +3,6 @@
 #
 #
 
-# Variáveis globais desse playbook, usadas por todos os scripts que precisarem.
+# Variáveis globais desse playbook, usadas por todos os scripts que utilizarem variáveis repetíveis.
 # (1) Arquitetura do sistema:
 arch: "x86_64"

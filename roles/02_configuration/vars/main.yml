@@ -4,8 +4,20 @@
 #
 
 # Variáveis globais para esse papel, altere conforme necessidade:
+# ====== #
+# GLOBAL #
+# ====== #
+
 # Diretório alvo chroot:
 chroot_dir: "/mnt"
 
+# ====== #
+# SYSTEM #
+# ====== #
+
 # Hostname da máquina:
 machine_hostname: "Voidplaybook"
+# Timezone (UTF):
+timezone: "America/Sao_Paulo"
+# Layout de teclado:
+layout_keymap: "us-acentos"

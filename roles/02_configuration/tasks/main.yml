@@ -15,6 +15,6 @@
 #eol
 
 # (3) Executar configurações de Usuários:
-# - name: "(3) USUÁRIO:"
-#   include_tasks: users.yml
+- name: "(3) USUÁRIO:"
+  include_tasks: users.yml
 #eol

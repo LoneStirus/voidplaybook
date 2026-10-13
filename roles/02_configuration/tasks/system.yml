@@ -55,8 +55,17 @@
     #eol
   #eol
 #eol
-# (4) Definir layout de teclado e relógio de hardware:
-- name: "(4) DEFININDO LAYOUT DO TECLADO E RELÓGIO DE HARDWARE..."
+# (4) Definir timezone (symlink):
+- name: "(4) DEFININDO TIMEZONE..."
+  file:
+    src: "/usr/share/zoneinfo/{{ timezone }}"
+    dest: "{{ chroot_dir }}/etc/localtime"
+    state: link
+    force: true
+  #eol
+#eol
+# (5) Definir configurações que vão no arquivo rc:
+- name: "(5) DEFININDO CONFIGURAÇÕES NO RC.CONF..."
   blockinfile:
     path: "{{ chroot_dir }}/etc/rc.conf"
     owner: root
@@ -68,22 +77,13 @@
     create: true
   #eol
 #eol
-# (5) Definir timezone (symlink):
-- name: "(5) DEFININDO TIMEZONE..."
-  file:
-    src: "/usr/share/zoneinfo/{{ timezone }}"
-    dest: "{{ chroot_dir }}/etc/localtime"
-    state: link
-    force: true
-  #eol
-#eol
 # (6) Aplicar os locales ( ref. (2) ):
 - name: "(6) APLICANDO LOCALES..."
   command: "chroot {{ chroot_dir }} xbps-reconfigure -f glibc-locales"
   changed_when: true
   ignore_errors: true
 #eol
-# (7) Gravar o timezone no RTC ( ref. (5) ):
+# (7) Gravar o timezone no RTC ( ref. (4) ):
 - name: "(7) APLICANDO TIMEZONE..."
   command: "chroot {{ chroot_dir }} hwclock --systohc"
   changed_when: true

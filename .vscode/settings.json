@@ -1,4 +1,8 @@
 {
+  // Yaml
+  "[yaml]": {
+    "editor.codeLens": false
+  },
   // Formatação
   "files.eol": "\n"
 }

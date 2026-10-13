@@ -1,0 +1,33 @@
+---
+#
+#
+#
+
+# Agrupa todo o processo do gerador de meta-pacotes customizados.
+# (1) Gera meta-pacotes:
+- name: "(1) DEFININDO PACOTE COM XBPS-CREATE..."
+  command: >
+    xbps-create -A {{ arch }}
+    -n {{ pkg_name }}
+    -s "{{ pkg_description }}"
+    -m "{{ pkg_by }}"
+    -D "{{ m_pkgs | join(' ') }}"
+    payload/
+  args:
+    chdir: "{{ dir_meta }}"
+  when: not pkg_exists.stat.exists
+#eol
+# (2) Definindo localização para o meta-pacote gerado para a pasta repo:
+- name: "(2) DEFININDO ALVO PARA O ARQUIVO GERADO..."
+  ansible.builtin.shell: "mv *.xbps repo/"
+  args:
+    chdir: "{{ dir_meta }}"
+  when: not pkg_exists.stat.exists
+#eol
+# (3) Definindo reindexação após criar o meta-pacote gerado.
+- name: "(3) DEFININDO REINDEXAÇÃO NO BANCO DE DADOS DO XBPS..."
+  command: "xbps-rindex -a repo/{{ pkg_file }}"
+  args:
+    chdir: "{{ dir_meta }}"
+  when: not pkg_exists.stat.exists
+#eol
