@@ -24,7 +24,7 @@
 #eol
 # (3) Definir pastas de destino dos demais pontos de montagem:
 - name: "(3) DEFININDO DIRETÓRIO DOS SUBVOLUMES..."
-  nsible.builtin.file:
+  ansible.builtin.file:
     path: "/mnt/{{ item }}"
     state: directory
   loop: ["home", "var/log", "boot/efi"]
