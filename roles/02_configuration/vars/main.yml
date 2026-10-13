@@ -20,4 +20,15 @@ machine_hostname: "Voidplaybook"
 # Timezone (UTF):
 timezone: "America/Sao_Paulo"
 # Layout de teclado:
-layout_keymap: "us-acentos"
+layout_keymap: "br-abnt2"
+
+# ======== #
+# USUÁRIOS #
+# ======== #
+
+# Nome de usuário normal:
+user_name: "lones"
+# Senha hasheada do usuário root:
+passwd_root_hash: "$6$IHBAYi2MsCLlGlel$P7JruZY1Zybd36Sb/KTFLftb82YethC25esaKJkBXT3Xkbd2r2xyhEboIntYfARUMY4tW/VmyB32S/.eCfcJk1"
+# Senha hasheada do usuário normal:
+passwd_user_hash: "$6$IHBAYi2MsCLlGlel$P7JruZY1Zybd36Sb/KTFLftb82YethC25esaKJkBXT3Xkbd2r2xyhEboIntYfARUMY4tW/VmyB32S/.eCfcJk1"
