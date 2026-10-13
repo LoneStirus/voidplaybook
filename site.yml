@@ -9,7 +9,7 @@
   hosts: localhost
   gather_facts: false
   roles:
-    - 00_building
+    - 00_construction
   tags: [building]
 #eol
 
