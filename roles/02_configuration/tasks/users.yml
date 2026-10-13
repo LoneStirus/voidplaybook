@@ -29,6 +29,5 @@
     group: root
     mode: "0400"
     content: "permit persist :wheel\n"
-  create: true
   #eol
 #eol
