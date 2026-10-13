@@ -6,7 +6,7 @@
 # Agrupa tudo o que mexe diretamente com os discos, partições e tabelas de partição.
 # (1) Definir partições do sistema:
 - name: "(1) DEFININDO PARTIÇÕES DO SISTEMA..."
-  command: >
+  ansible.builtin.command: >
     sgdisk
     -n 1:0:+1G -t 1:ef00
     -n 2:0:+8G -t 2:8300
@@ -17,7 +17,7 @@
 #eol
 # (2) Definir formatação da partição ESP (EFI System Partition):
 - name: "(2) DEFININDO FORMATAÇÃO DA PARTIÇÃO ESP..."
-  filesystem:
+  community.general.filesystem:
     fstype: vfat
     dev: "{{ disk }}p1"
     opts: "-F 32 -n ESP"
@@ -26,7 +26,7 @@
 #eol
 # (3) Definir formatação da partição VSP (Void System Partition):
 - name: "(3) DEFININDO FORMATAÇÃO DA PARTIÇÃO VSP..."
-  filesystem:
+  community.general.filesystem:
     fstype: btrfs
     dev: "{{ disk }}p2"
     opts: "-L VSP"
