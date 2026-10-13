@@ -10,3 +10,15 @@
     path: "{{ dir_meta }}/repo/{{ pkg_file }}"
   register: pkg_exists
 #eol
+# (2) Definir que os diretórios necessários existam na máquina:
+- name: "(2) DEFININDO ESTRUTURA DE DIRETÓRIOS PARA O META-PACOTE..."
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ dir_meta }}"
+    - "{{ dir_meta }}/repo"
+    - "{{ dir_meta }}/payload"
+  when: not pkg_exists.stat.exists
+#eol
