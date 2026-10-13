@@ -1,0 +1,29 @@
+---
+#
+#
+#
+
+# Agrupa ambiente instalado para o primeiro boot ou para entrar em ambiente chroot.
+# (1) Definindo geração do conteúdo do fstab com xgenfstab:
+- name: "(1) DEFININDO CONTEÚDO DO FSTAB..."
+  command: "xgenfstab -U /mnt"
+  register: fstab_generated
+  changed_when: false
+#eol
+# (2) Definir copia do 'resolv.conf' para o novo sistema:
+- name: "(2) DEFININDO COPIA DO ARQUIVO 'RESOLV.CONF'..."
+  copy:
+    content: "{{ fstab_generated.stdout }}\n"
+    dest: /mnt/etc/fstab
+  #eol
+#eol
+# (3) Definir montagem dos pseudo-sistemas para suportar hooks do kernel:
+- name: "(3) DEFININDO PSEUDO-SISTEMAS..."
+  mount:
+    path: "/mnt/{{ item }}"
+    src: "/{{ item }}"
+    fstype: none
+    opts: rbind
+    state: mounted
+  loop: [dev, proc, sys]
+#eol

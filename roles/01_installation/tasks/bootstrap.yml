@@ -1,0 +1,34 @@
+---
+#
+#
+#
+
+# Agrupa pasta/arquivo que cuida estritamente de injetar o sistema operacional base dentro do novo ambiente de disco.
+# (1) Definir a criação dos diretórios de chaves assinadas do xbps no novo sistema.:
+- name: "(1) DEFININDO CRIAÇÃO DOS DIRETÓRIOS DE CHAVES DO XBPS..."
+  file:
+    path: /mnt/var/db/xbps/keys
+    state: directory
+  #eol
+#eol
+# (2) Definir copiação das chaves de assinatura para o novo sistema:
+- name: "(2) DEFININDO COPIA DAS CHAVES DE ASSINATURAS PARA O SISTEMA ALVO..."
+  copy:
+    src: /var/db/xbps/keys/
+    dest: /mnt/var/db/xbps/keys/
+    remote_src: true
+  #eol
+#eol
+# (3) Definir bootstrap do sistema (baixar arquivos) do sistema base (meta-pacote 'base-essential'):
+- name: "(3) DEFININDO INSTALAÇÃO DO SISTEMA..."
+  command: >
+    xbps-install -S -y -r /mnt
+    -R "{{ repo }}"
+    -R /home/anon/voidplaybook/void-meta/repo
+    base-essential {{ ne_pkgs | join(' ') }}
+  environment:
+    XBPS_ARCH: "{{ arch }}"
+  args:
+    creates: /mnt/etc/rc.conf
+  #eol
+#eol

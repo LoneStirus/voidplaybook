@@ -1,0 +1,14 @@
+---
+#
+#
+#
+
+# Agrupa tarefas que garantem que o ambiente está limpo e pronto para receber as alterações.
+# (1) Definir desmontagem de '/mnt' se estiver montado:
+- name: "(1) DEFININDO DESMONTAGEM DE '/MNT' ANTES DE PROSSEGUIR..."
+  shell: |
+    if mountpoint -q /mnt; then
+      umount -R /mnt
+    fi
+  changed_when: false
+#eol

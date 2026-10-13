@@ -1,0 +1,60 @@
+---
+#
+#
+#
+
+# Agrupa a lógica de criação da estrutura do Btrfs e os pontos de montagem temporários do bootstrap.
+# (1) Definir a criação dos subvolumes e montagem:
+- name: "(1) DEFININDO SUBVOLUMES..."
+  btrfs_subvolume:
+    name: "/{{ item }}"
+    filesystem_device: "{{ disk }}p2"
+    automount: true
+  loop: ["@", "@home", "@var_log"]
+#eol
+# (2) Definir montagem dos subvolumes:
+- name: "(2) DEFININDO MONTAGEM DOS SUBVOLUMES..."
+  mount:
+    path: /mnt
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@,noatime,compress=zstd:1"
+    state: ephemeral
+  #eol
+#eol
+# (3) Definir pastas de destino dos demais pontos de montagem:
+- name: "(3) DEFININDO DIRETÓRIO DOS SUBVOLUMES..."
+  file:
+    path: "/mnt/{{ item }}"
+    state: directory
+  loop: ["home", "var/log", "boot/efi"]
+#eol
+# (4) Definir montagem de subvolume 1:
+- name: "(4) DEFININDO SUBVOLUME 1..."
+  mount:
+    path: /mnt/home
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@home,noatime,compress=zstd:1"
+    state: ephemeral
+  #eol
+#eol
+# (5) Definir montagem de subvolume 2:
+- name: "(5) DEFININDO SUBVOLUME 2..."
+  mount:
+    path: /mnt/var/log
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@var_log,relatime,compress=zstd:1"
+    state: ephemeral
+  #eol
+#eol
+# (6) Definir montagem de partição ESP:
+- name: "(6) DEFININDO PARTIÇÃO ESP EM '/BOOT/EFI'..."
+  mount:
+    path: /mnt/boot/efi
+    src: "{{ disk }}p1"
+    fstype: vfat
+    state: ephemeral
+  #eol
+#eol
