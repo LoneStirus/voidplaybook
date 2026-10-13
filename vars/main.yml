@@ -4,5 +4,9 @@
 #
 
 # Variáveis globais desse playbook, usadas por todos os scripts que utilizarem variáveis repetíveis.
+# ======== #
+# HARDWARE #
+# ======== #
+
 # (1) Arquitetura do sistema:
 arch: "x86_64"

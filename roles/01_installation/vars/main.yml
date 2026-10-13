@@ -3,21 +3,28 @@
 #
 #
 
-# Variáveis globais para esse papel, altere conforme necessidade:
+# Variáveis globais para esse papel, altere conforme necessidade.
+# ======== #
+# HARDWARE #
+# ======== #
+
 # Disco alvo:
 disk: "/dev/nvme0n1"
 
+# ====================== #
+# GERENCIADOR DE PACOTES #
+# ====================== #
+
 # Repositório para instalação:
 repo: "https://repo-fastly.voidlinux.org/current"
-
 # Lista de pacotes não essênciais na base (ne_pkgs):
 ne_pkgs:
-  # Kernel do sistema (padrão).
+  # Kernel do sistema (padrão):
   - "linux"
   - "linux-headers"
-  # Drivers de disco e sistema de arquivos.
+  # Drivers de disco e sistema de arquivos:
   - "btrfs-progs"
-  # Utilitários.
+  # Utilitários:
   - "opendoas"
   - "openssh"
   - "nano"
