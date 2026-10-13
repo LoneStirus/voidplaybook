@@ -4,14 +4,8 @@
 #
 
 # Agrupa todos as verificações e dependências antes de criar um meta-pacote customizado.
-# (1) Definir estrutura de pastas:
-- name: "(1) DEFININDO ESTRUTURA DE PASTAS..."
-  file:
-    path: "{{ dir_meta }}/repo/{{ pkg_file }}"
-  register: pkg_exists
-#eol
-# (2) Definir idempotência do gerador de meta-pacotes:
-- name: "(2) DEFININDO IDEMPOTÊNCIA..."
+# (1) Definir idempotência do gerador de meta-pacotes:
+- name: "(1) DEFININDO IDEMPOTÊNCIA..."
   stat:
     path: "{{ dir_meta }}/repo/{{ pkg_file }}"
   register: pkg_exists
